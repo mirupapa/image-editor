@@ -1,11 +1,11 @@
-import { Box, Flex, Button } from '@chakra-ui/react'
+import { Box, Flex, Button, Heading } from '@chakra-ui/react'
 import React, { useRef, useState } from 'react'
 import ReactCrop, { Crop, PercentCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 
 const Editor: React.FC = () => {
-  const [src, setSrc] = useState<string | ArrayBuffer | null>(null)
-  const [crop, setCrop] = useState({
+  const [src, setSrc] = useState<string | ArrayBuffer | null>()
+  const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 30,
     aspect: 16 / 9,
@@ -18,8 +18,12 @@ const Editor: React.FC = () => {
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader()
-      reader.addEventListener('load', () => setSrc(reader.result))
+      console.log('reader', reader)
+      reader.addEventListener('loadend', () => setSrc(reader.result))
+      console.log('addEventListener', reader)
       reader.readAsDataURL(e.target.files[0])
+      console.log('readAsDataURL', reader)
+      reader.addEventListener('error', () => alert(reader.result))
     }
   }
 
@@ -39,20 +43,20 @@ const Editor: React.FC = () => {
     const canvas = document.createElement('canvas')
     const scaleX = image.naturalWidth / image.width
     const scaleY = image.naturalHeight / image.height
-    canvas.width = crop.width
-    canvas.height = crop.height
+    canvas.width = crop.width || 0
+    canvas.height = crop.height || 0
     const ctx = canvas.getContext('2d')
 
     ctx?.drawImage(
       image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
+      (crop.x || 0) * scaleX,
+      (crop.y || 0) * scaleY,
+      (crop.width || 0) * scaleX,
+      (crop.height || 0) * scaleY,
       0,
       0,
-      crop.width,
-      crop.height,
+      crop.width || 0,
+      crop.height || 0,
     )
 
     return new Promise((resolve, _) => {
@@ -105,20 +109,23 @@ const Editor: React.FC = () => {
   }
 
   return (
-    <Flex justify="center" marginY="auto">
+    <Flex justify="center" alignItems="center">
       <Box width="xl">
+        <Flex justify="center" marginBottom="10">
+          <Heading>IMAGE EDITOR</Heading>
+        </Flex>
         <Flex justify="center" marginBottom="1">
           <input type="file" accept="image/*" onChange={onSelectFile} />
           <Button
             colorScheme="blue"
             type="button"
             onClick={() => download()}
-            disabled={croppedImageUrl == null}
+            disabled={src == null}
           >
             download
           </Button>
         </Flex>
-        {src && (
+        {typeof src === 'string' && (
           <ReactCrop
             src={src}
             crop={crop}
