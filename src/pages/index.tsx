@@ -5,7 +5,6 @@ import Editor from 'src/components/Editor'
 const Home: React.FC = () => {
   return (
     <Box>
-      <Heading>Image Editor</Heading>
       <Editor />
     </Box>
   )
