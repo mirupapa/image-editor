@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "build": "rm -rf ./build && NODE_ENV=production next build",
+    "build": "next build",
     "start": "next start -p 3000",
     "lint": "eslint src/** --ext .ts,.tsx",
     "lint:fix": "eslint src/** --ext .ts,.tsx --fix && yarn format",
